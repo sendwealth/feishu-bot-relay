@@ -252,6 +252,24 @@ class BotRegistry {
     console.log(`[BotRegistry] Bot status updated: ${botId} -> ${status}`);
     return true;
   }
+
+  /**
+   * 注销机器人
+   * @param {string} botId - 机器人ID
+   * @returns {boolean} 是否成功注销
+   */
+  unregister(botId) {
+    const bot = this.bots.get(botId);
+    if (!bot) {
+      return false;
+    }
+    
+    this.bots.delete(botId);
+    this.nameToId.delete(bot.name);
+    
+    console.log(`[BotRegistry] Bot unregistered: ${botId}`);
+    return true;
+  }
 }
 
 // 单例模式

@@ -134,15 +134,19 @@ describe('FeishuBotRelay Integration Tests', () => {
     
     expect(response.status).toBe(200);
     expect(response.data.success).toBe(true);
-    expect(response.data.result.relayed.relayed).toHaveLength(1);
-    expect(response.data.result.relayed.relayed[0].botId).toBe('cli_test_b');
+    expect(response.data.data.relayed).toBe(1);
+    expect(response.data.data.details.relayed).toHaveLength(1);
+    expect(response.data.data.details.relayed[0].botId).toBe('cli_test_b');
   });
 
   test('应该拒绝不存在的机器人', async () => {
-    const response = await axios.get(`${BASE_URL}/api/bots/non_existent`);
-    
-    expect(response.status).toBe(404);
-    expect(response.data.error).toBe('Bot not found');
+    try {
+      await axios.get(`${BASE_URL}/api/bots/non_existent`);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error.response.status).toBe(404);
+      expect(error.response.data.error).toBe('Bot not found');
+    }
   });
 
   test('应该删除机器人', async () => {
@@ -160,8 +164,12 @@ describe('FeishuBotRelay Integration Tests', () => {
     expect(response.data.success).toBe(true);
 
     // 验证已删除
-    const checkResponse = await axios.get(`${BASE_URL}/api/bots/cli_temp`);
-    expect(checkResponse.status).toBe(404);
+    try {
+      await axios.get(`${BASE_URL}/api/bots/cli_temp`);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error.response.status).toBe(404);
+    }
   });
 
   test('测试接口应该正确解析和中转消息', async () => {

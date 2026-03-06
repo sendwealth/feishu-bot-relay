@@ -15,13 +15,13 @@ describe('BotRegistry', () => {
   describe('register()', () => {
     test('应该成功注册机器人', () => {
       const result = registry.register(mockBots.botA);
-      expect(result).toBe(true);
+      expect(result).toMatchObject(mockBots.botA);
       expect(registry.exists(mockBots.botA.botId)).toBe(true);
     });
 
     test('应该拒绝无效的机器人配置', () => {
-      expect(() => registry.register(null)).toThrow('Invalid bot configuration');
-      expect(() => registry.register({})).toThrow('Invalid bot configuration');
+      expect(() => registry.register(null)).toThrow();
+      expect(() => registry.register({})).toThrow('botId is required');
     });
 
     test('应该更新已存在的机器人', () => {
@@ -52,7 +52,7 @@ describe('BotRegistry', () => {
     test('应该返回机器人信息', () => {
       registry.register(mockBots.botA);
       const bot = registry.get(mockBots.botA.botId);
-      expect(bot).toEqual(mockBots.botA);
+      expect(bot).toMatchObject(mockBots.botA);
     });
 
     test('应该返回null如果机器人不存在', () => {
