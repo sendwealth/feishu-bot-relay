@@ -47,10 +47,15 @@ class WebhookServer {
   setupRoutes() {
     // 健康检查
     this.app.get('/health', (req, res) => {
+      const stats = this.botRegistry.getStats();
       res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        bots: this.botRegistry.count()
+        bots: {
+          total: stats.total,
+          active: stats.active,
+          inactive: stats.inactive
+        }
       });
     });
 
@@ -101,8 +106,7 @@ class WebhookServer {
     this.app.get('/api/bots', (req, res) => {
       const bots = this.botRegistry.getAll();
       res.json({
-        success: true,
-        data: bots.map(b => ({
+        bots: bots.map(b => ({
           botId: b.botId,
           name: b.name,
           status: b.status,
@@ -117,10 +121,73 @@ class WebhookServer {
         const bot = this.botRegistry.register(req.body);
         res.json({
           success: true,
-          data: {
+          bot: {
             botId: bot.botId,
             name: bot.name,
             status: bot.status
+          }
+        });
+      } catch (error) {
+        res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // API: 获取单个机器人
+    this.app.get('/api/bots/:botId', (req, res) => {
+      const bot = this.botRegistry.get(req.params.botId);
+      if (!bot) {
+        return res.status(404).json({
+          error: 'Bot not found'
+        });
+      }
+      res.json({
+        bot: {
+          botId: bot.botId,
+          openId: bot.openId,
+          name: bot.name,
+          appId: bot.appId,
+          webhookUrl: bot.webhookUrl,
+          permissions: bot.permissions,
+          status: bot.status,
+          createdAt: bot.createdAt,
+          updatedAt: bot.updatedAt
+        }
+      });
+    });
+
+    // API: 删除机器人
+    this.app.delete('/api/bots/:botId', (req, res) => {
+      const deleted = this.botRegistry.delete(req.params.botId);
+      if (!deleted) {
+        return res.status(404).json({
+          error: 'Bot not found'
+        });
+      }
+      res.json({
+        success: true
+      });
+    });
+
+    // API: 测试消息解析和中转
+    this.app.post('/api/test/relay', async (req, res) => {
+      try {
+        const { message } = req.body;
+        
+        // 解析消息
+        const parsed = this.messageParser.parse(message);
+        
+        // 检查机器人提及
+        const hasMentions = this.messageParser.hasBotMentions(parsed);
+        
+        res.json({
+          success: true,
+          parsed: {
+            botMentions: parsed.botMentions || [],
+            hasBotMentions: hasMentions,
+            content: parsed.content
           }
         });
       } catch (error) {

@@ -224,6 +224,34 @@ class BotRegistry {
       inactive: bots.filter(b => b.status !== 'active').length
     };
   }
+
+  /**
+   * 获取所有活跃的机器人
+   * @returns {Array} 活跃机器人列表
+   */
+  getAllActive() {
+    return this.getAll({ status: 'active' });
+  }
+
+  /**
+   * 更新机器人状态
+   * @param {string} botId - 机器人ID
+   * @param {string} status - 新状态 ('active' | 'inactive')
+   * @returns {boolean} 是否更新成功
+   */
+  updateStatus(botId, status) {
+    const bot = this.bots.get(botId);
+    if (!bot) {
+      return false;
+    }
+    
+    bot.status = status;
+    bot.updatedAt = new Date().toISOString();
+    this.bots.set(botId, bot);
+    
+    console.log(`[BotRegistry] Bot status updated: ${botId} -> ${status}`);
+    return true;
+  }
 }
 
 // 单例模式

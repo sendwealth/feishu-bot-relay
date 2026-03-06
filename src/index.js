@@ -30,6 +30,9 @@ class FeishuBotRelay {
       relayEngine: this.relayEngine,
       botRegistry: this.botRegistry
     });
+    
+    // 暴露app用于测试
+    this.app = this.webhookServer.app;
   }
 
   /**
