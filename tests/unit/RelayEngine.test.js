@@ -3,7 +3,7 @@
  */
 
 const RelayEngine = require('../../src/core/RelayEngine');
-const BotRegistry = require('../../src/core/BotRegistry');
+const { BotRegistry } = require('../../src/core/BotRegistry');
 const { mockFeishuEvents, mockBots } = require('../fixtures/test-data');
 
 // Mock axios

@@ -2,7 +2,7 @@
  * 快速启动示例
  */
 
-const FeishuBotRelay = require('../src/index');
+const { FeishuBotRelay } = require('../src/index');
 
 // 创建中转服务实例
 const relay = new FeishuBotRelay({

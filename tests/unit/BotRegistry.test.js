@@ -2,7 +2,7 @@
  * BotRegistry 单元测试
  */
 
-const BotRegistry = require('../../src/core/BotRegistry');
+const { BotRegistry } = require('../../src/core/BotRegistry');
 const { mockBots } = require('../fixtures/test-data');
 
 describe('BotRegistry', () => {
