@@ -2,7 +2,7 @@
  * 集成测试 - 端到端消息中转流程
  */
 
-const FeishuBotRelay = require('../../src/index');
+const { FeishuBotRelay } = require('../../src/index');
 const axios = require('axios');
 
 describe('FeishuBotRelay Integration Tests', () => {

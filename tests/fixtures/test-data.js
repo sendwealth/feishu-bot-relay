@@ -118,7 +118,12 @@ const mockFeishuEvents = {
         mentions: [
           { id: "cli_bot_c", name: "Bot C", type: "bot" }
         ],
-        message_type: "text"
+        message_type: "text",
+        relay_context: {
+          original_message_id: "om_original",
+          relay_chain: ["cli_bot_a"],
+          relay_count: 1
+        }
       },
       relay_context: {
         original_message_id: "om_original",

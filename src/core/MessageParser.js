@@ -16,7 +16,8 @@ class MessageParser {
       content: message.content,
       mentions: [],
       botMentions: [],
-      timestamp: message.create_time || Date.now()
+      timestamp: message.create_time || Date.now(),
+      relayContext: message.relay_context || null
     };
 
     // 提取所有@提及
@@ -69,6 +70,21 @@ class MessageParser {
       return 'bot';
     }
     return 'user';
+  }
+
+  /**
+   * 验证消息格式是否正确
+   * @param {Object} message - 消息对象
+   * @returns {boolean} 验证结果
+   */
+  validateMessage(message) {
+    if (!message) return false;
+    if (typeof message !== 'object') return false;
+    if (!message.message_id && !message.id) return false;
+    if (!message.chat_id) return false;
+    if (!message.content) return false;
+    
+    return true;
   }
 
   /**

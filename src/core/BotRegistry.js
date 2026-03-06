@@ -211,6 +211,19 @@ class BotRegistry {
   export() {
     return Array.from(this.bots.values());
   }
+
+  /**
+   * 获取统计信息
+   * @returns {Object} 统计数据
+   */
+  getStats() {
+    const bots = Array.from(this.bots.values());
+    return {
+      total: bots.length,
+      active: bots.filter(b => b.status === 'active').length,
+      inactive: bots.filter(b => b.status !== 'active').length
+    };
+  }
 }
 
 // 单例模式
