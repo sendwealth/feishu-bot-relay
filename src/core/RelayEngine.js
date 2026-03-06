@@ -146,12 +146,19 @@ class RelayEngine {
     // 提取转发链信息
     let relayChain = [];
     let relayCount = 0;
+    let originalMessageId = messageId;
     
     // 如果原始消息是虚拟事件，继续转发链
     if (parsedMessage._rawEvent && parsedMessage._rawEvent.event && 
         parsedMessage._rawEvent.event.relay_context) {
       relayChain = [...parsedMessage._rawEvent.event.relay_context.relay_chain];
       relayCount = parsedMessage._rawEvent.event.relay_context.relay_count;
+      originalMessageId = parsedMessage._rawEvent.event.relay_context.original_message_id;
+    } else if (parsedMessage.relayContext) {
+      // 支持简化的relayContext格式
+      relayChain = [...parsedMessage.relayContext.relay_chain];
+      relayCount = parsedMessage.relayContext.relay_count;
+      originalMessageId = parsedMessage.relayContext.original_message_id;
     }
 
     // 添加发送者到转发链
@@ -178,7 +185,7 @@ class RelayEngine {
           message_type: 'text'
         },
         relay_context: {
-          original_message_id: messageId,
+          original_message_id: originalMessageId,
           relay_chain: relayChain,
           relay_count: relayCount
         }
@@ -265,23 +272,40 @@ class RelayEngine {
     const fromBot = this.botRegistry.get(fromBotId);
     const toBot = this.botRegistry.get(toBotId);
 
+    // 如果目标机器人不存在，拒绝
+    if (!toBot) {
+      return false;
+    }
+
     // 如果发送者未注册，允许（可能是用户直接发送）
     if (!fromBot) {
       return true;
     }
 
     // 检查发送方权限
-    if (fromBot.permissions.canRelayTo.length > 0 && 
-        !fromBot.permissions.canRelayTo.includes('*') &&
-        !fromBot.permissions.canRelayTo.includes(toBotId)) {
-      return false;
+    if (fromBot.permissions && Array.isArray(fromBot.permissions.canRelayTo)) {
+      const canRelayTo = fromBot.permissions.canRelayTo;
+      // 空数组表示不能relay给任何人
+      if (canRelayTo.length === 0) {
+        return false;
+      }
+      // 如果不是通配符且不包含目标机器人，则拒绝
+      if (!canRelayTo.includes('*') && !canRelayTo.includes(toBotId)) {
+        return false;
+      }
     }
 
     // 检查接收方权限
-    if (toBot.permissions.canBeRelayedBy.length > 0 &&
-        !toBot.permissions.canBeRelayedBy.includes('*') &&
-        !toBot.permissions.canBeRelayedBy.includes(fromBotId)) {
-      return false;
+    if (toBot.permissions && Array.isArray(toBot.permissions.canBeRelayedBy)) {
+      const canBeRelayedBy = toBot.permissions.canBeRelayedBy;
+      // 空数组表示不允许任何人relay给自己
+      if (canBeRelayedBy.length === 0) {
+        return false;
+      }
+      // 如果不是通配符且不包含发送者，则拒绝
+      if (!canBeRelayedBy.includes('*') && !canBeRelayedBy.includes(fromBotId)) {
+        return false;
+      }
     }
 
     return true;
@@ -300,8 +324,8 @@ class RelayEngine {
       return sender.sender_id.open_id;
     }
     
-    // 简化格式
-    return sender.open_id || sender.id || null;
+    // 简化格式（支持botId, open_id, id）
+    return sender.botId || sender.open_id || sender.id || null;
   }
 
   /**

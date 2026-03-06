@@ -32,7 +32,7 @@ describe('RelayEngine', () => {
 
     // Mock axios
     axios.post.mockClear();
-    axios.post.mockResolvedValue({ data: { success: true } });
+    axios.post.mockResolvedValue({ status: 200, data: { success: true } });
   });
 
   describe('relay()', () => {
@@ -152,24 +152,22 @@ describe('RelayEngine', () => {
     });
   });
 
-  describe('createVirtualEvent()', () => {
+  describe('constructVirtualEvent()', () => {
     test('应该构造正确的虚拟事件', () => {
       const parsed = {
         messageId: 'om_001',
         chatId: 'oc_001',
         content: 'test message',
         sender: { botId: 'cli_bot_a' },
-        timestamp: 1709877600000
+        timestamp: 1709877600000,
+        botMentions: [{ id: 'cli_bot_b', name: 'Bot B', type: 'bot' }]
       };
 
-      const mention = { id: 'cli_bot_b', name: 'Bot B', type: 'bot' };
-
-      const event = engine.createVirtualEvent(parsed, mention);
+      const event = engine.constructVirtualEvent(parsed, 'cli_bot_b');
 
       expect(event.schema).toBe('openclaw.relay.v1');
       expect(event.type).toBe('virtual.message.receive_v1');
       expect(event.event.message.root_id).toBe('om_001');
-      expect(event.event.message.mentions).toContain(mention);
       expect(event.event.relay_context.relay_chain).toContain('cli_bot_a');
       expect(event.event.relay_context.relay_count).toBe(1);
     });
@@ -189,7 +187,7 @@ describe('RelayEngine', () => {
       };
 
       const mention = { id: 'cli_bot_c', name: 'Bot C', type: 'bot' };
-      const event = engine.createVirtualEvent(parsed, mention);
+      const event = engine.constructVirtualEvent(parsed, 'cli_bot_c');
 
       expect(event.event.relay_context.relay_chain).toEqual(['cli_bot_a', 'cli_bot_b']);
       expect(event.event.relay_context.relay_count).toBe(2);
