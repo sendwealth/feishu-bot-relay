@@ -1,0 +1,68 @@
+{
+  "name": "feishu-bot-relay",
+  "version": "1.0.0",
+  "description": "Feishu bot message relay system - 解决飞书机器人间消息互通限制",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node examples/quick-start.js",
+    "dev": "nodemon examples/quick-start.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "lint": "eslint src tests examples",
+    "example:quick-start": "node examples/quick-start.js",
+    "example:test-system": "node examples/test-system.js"
+  },
+  "keywords": [
+    "feishu",
+    "bot",
+    "relay",
+    "message",
+    "lark",
+    "飞书",
+    "机器人",
+    "消息中转"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/feishu-bot-relay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-repo/feishu-bot-relay/issues"
+  },
+  "homepage": "https://github.com/your-repo/feishu-bot-relay#readme",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.0",
+    "supertest": "^6.3.4"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js"
+    ]
+  }
+}
