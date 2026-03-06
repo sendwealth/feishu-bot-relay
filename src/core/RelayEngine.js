@@ -4,12 +4,24 @@
  */
 
 const crypto = require('crypto');
+const axios = require('axios');
 
 class RelayEngine {
-  constructor(config = {}) {
-    this.botRegistry = config.botRegistry;
-    this.maxRelayCount = config.maxRelayCount || 3;  // 最大转发次数
-    this.timeout = config.timeout || 5000;  // Webhook超时时间（ms）
+  constructor(config = {}, options = {}) {
+    // 支持两种调用方式：
+    // 1. new RelayEngine({ botRegistry: registry, ... })
+    // 2. new RelayEngine(registry, { ... })
+    if (config && typeof config.get === 'function') {
+      // 旧版调用方式：第一个参数是BotRegistry实例
+      this.botRegistry = config;
+      this.maxRelayCount = options.maxRelayCount || 3;
+      this.timeout = options.timeout || 5000;
+    } else {
+      // 新版调用方式：第一个参数是config对象
+      this.botRegistry = config.botRegistry;
+      this.maxRelayCount = config.maxRelayCount || 3;
+      this.timeout = config.timeout || 5000;
+    }
     
     // 统计信息
     this.stats = {
@@ -320,15 +332,20 @@ class RelayEngine {
    * @returns {Object} 响应对象
    */
   async httpPost(url, data, options = {}) {
-    // MVP版本：返回模拟响应
-    // 实际部署时需要实现真实的HTTP请求
-    console.log(`[RelayEngine] POST ${url}`, JSON.stringify(data).substring(0, 100));
-    
-    // 模拟成功响应
-    return {
-      status: 200,
-      data: { success: true }
-    };
+    try {
+      const response = await axios.post(url, data, {
+        timeout: options.timeout || this.timeout,
+        headers: options.headers || {}
+      });
+      
+      return {
+        status: response.status,
+        data: response.data
+      };
+    } catch (error) {
+      console.error(`[RelayEngine] POST ${url} failed:`, error.message);
+      throw error;
+    }
   }
 
   /**

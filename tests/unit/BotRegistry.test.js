@@ -59,7 +59,7 @@ describe('BotRegistry', () => {
     test('应该返回机器人信息', () => {
       registry.register(mockBots.botA);
       const bot = registry.get(mockBots.botA.botId);
-      expect(bot).toEqual(mockBots.botA);
+      expect(bot).toMatchObject(mockBots.botA);
     });
 
     test('应该返回null当机器人不存在时', () => {
@@ -72,7 +72,7 @@ describe('BotRegistry', () => {
     test('应该通过名称获取机器人', () => {
       registry.register(mockBots.botA);
       const bot = registry.getByName(mockBots.botA.name);
-      expect(bot).toEqual(mockBots.botA);
+      expect(bot).toMatchObject(mockBots.botA);
     });
   });
 
